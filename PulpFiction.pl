@@ -8,6 +8,7 @@ personaje(marsellus,  mafioso(capo)).
 personaje(winston,    mafioso(resuelveProblemas)).
 personaje(mia,        actriz([foxForceFive])).
 personaje(butch,      boxeador).
+personaje(elVendedor, vender).%Lo agregamos para que lo tuviera en cuenta en el predicado cantidadDeEncargos
 
 pareja(marsellus, mia).
 pareja(pumkin,    honeyBunny).
@@ -25,12 +26,12 @@ amigo(vincent, elVendedor).
 %las tareas pueden ser cuidar(Protegido), ayudar(Ayudado), buscar(Buscado, Lugar)
 encargo(marsellus, vincent,   cuidar(mia)).
 encargo(vincent,  elVendedor, cuidar(mia)).
-encargo(vincent,  jules, cuidar(mia)). %agregado
+%encargo(vincent,  jules, cuidar(mia)). %agregado
 encargo(marsellus, winston, ayudar(jules)).
-encargo(marsellus, wiston, ayudar(vincent)).
-encargo(marsellus, jules, ayudar(vincent)). %lo agregamos para probar sanCayetano
-encargo(jules,  jimmie, cuidar(mia)). %agregado
-encargo(marsellus, vincent, buscar(butch, losAngeles)).
+encargo(marsellus, winston, ayudar(vincent)).
+%encargo(marsellus, jules, ayudar(vincent)). %lo agregamos para probar sanCayetano
+%encargo(jules,  jimmie, cuidar(mia)). %agregado
+encargo(marsellus, vincent, buscar(butch, losAngeles)). %butch
 
 /* Punto 1
 esPeligroso/1. Nos dice si un personaje es peligroso. Eso ocurre cuando:
@@ -107,6 +108,83 @@ personajeCercano(Persona, PersonajeCercano):-
 
 /*Punto 5. 
 masAtareado/1. Es el más atareado aquel que tenga más encargos que cualquier otro personaje.*/
+
+masAtareado(Personaje):-
+    cantidadDeEncargos(Personaje, CantidadDeEncargosMayor),
+    not(((cantidadDeEncargos(OtraPersona, OtraCantidad), OtraPersona\= Personaje), OtraCantidad >= CantidadDeEncargosMayor)).
+%Preguntar si sirve mayor o igual
+%not((cantidadDeEncargos(_, OtraCantidad), , OtraCantidad > CantidadDeEncargosMayor)). Primera opcion, no falta el distinto porque sólo se evalua mayor
+
+cantidadDeEncargos(Personaje, CantidadDeEncargos):-
+    personaje(Personaje, _), %lo agregamos para que sea inversible por la variable Personaje
+    findall(Encargo, encargo(_, Personaje, Encargo), ListaEncargos),
+    length(ListaEncargos, CantidadDeEncargos).
+
+/*Punto 6. 
+personajesRespetables/1: genera la lista de todos los personajes respetables. 
+Es respetable cuando su actividad tiene un nivel de respeto mayor a 9. Se sabe que:
+Las actrices tienen un nivel de respeto de la décima parte de su cantidad de peliculas.
+Los mafiosos que resuelven problemas tienen un nivel de 10 de respeto, los matones 1 y los capos 20.
+Al resto no se les debe ningún nivel de respeto. 
+*/
+
+/*Opcion con Lista
+personajesRespetables(ListaPersonajes):-
+    forall(member(Personaje, ListaPersonajes), esRespetable(Personaje)).*/
+
+personajesRespetables(ListaPersonajes):-
+    findall(Personaje, esRespetable(Personaje), ListaPersonajes).
+
+esRespetable(Personaje):-
+    nivelRespeto(Personaje, NivelRespeto),
+    NivelRespeto > 9.
+
+nivelRespeto(Personaje, NivelRespeto):-
+    personaje(Personaje, Actividad),
+    nivelDeRespetoSegunActividad(Actividad, NivelRespeto).
+
+nivelDeRespetoSegunActividad(actriz(Peliculas), NivelRespeto):-
+    length(Peliculas, CantidadPeliculas),
+    NivelRespeto is CantidadPeliculas // 10.
+
+nivelDeRespetoSegunActividad(mafioso(resuelveProblemas), 10).
+nivelDeRespetoSegunActividad(mafioso(maton), 1).
+nivelDeRespetoSegunActividad(mafioso(capo), 20).
+
+/*Punto 7
+hartoDe/2: un personaje está harto de otro, cuando todas las tareas asignadas al primero 
+requieren interactuar con el segundo (cuidar, buscar o ayudar) o un amigo del segundo. Ejemplo:*/
+
+hartoDe(Hartado, Persona):-
+    encargo(_, Hartado, _), %para ligar el hartado
+    personaje(Persona, _), %para ligar la persona
+    forall(encargo(_, Hartado, Tarea), requiereInteractuar(Persona, Tarea)).
+
+requiereInteractuar(Persona, Tarea):-
+    estaEnLaTarea(Persona, Tarea).
+
+requiereInteractuar(Persona, Tarea):-
+    amigo(Persona, Amigo),
+    estaEnLaTarea(Amigo, Tarea).
+
+estaEnLaTarea(Personaje, cuidar(Personaje)).
+estaEnLaTarea(Personaje, ayudar(Personaje)).
+estaEnLaTarea(Personaje, buscar(Personaje, _)).
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
 
 
 
