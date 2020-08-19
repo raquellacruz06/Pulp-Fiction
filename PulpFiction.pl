@@ -180,25 +180,26 @@ tiene al menos una característica que el otro no. */
 
 caracteristicas(vincent,  [negro, muchoPelo, tieneCabeza]).
 caracteristicas(jules,    [tieneCabeza, muchoPelo]).
-caracteristicas(jimmie,   [negro]).
+caracteristicas(marvin,   [negro]).
 
 duoDiferenciable(Persona, OtraPersona):-
     seRelacionan(Persona, OtraPersona),
-    tienenCaracteristicaDistinta(Persona, OtraPersona).
+    tienenCaracteristicaDistinta(Persona, OtraPersona),
+    Persona \= OtraPersona.
 
-/*tienenCaracteristicaDistinta(Persona, OtraPersona):-
+tienenCaracteristicaDistinta(Persona, OtraPersona):-
     hallarCaracteristica(Persona, Caracteristica),
     hallarCaracteristica(OtraPersona, OtraCaracteristica),
-    Caracteristica \= OtraCaracteristica.*/
+    Caracteristica \= OtraCaracteristica.
 
 hallarCaracteristica(Persona, Caracteristica):-
     caracteristicas(Persona, Caracteristicas),
     member(Caracteristica, Caracteristicas).
 
-tienenCaracteristicaDistinta(Persona, OtraPersona):-
+/*tienenCaracteristicaDistinta(Persona, OtraPersona):-
     hallarCaracteristica(Persona, Caracteristica),
     caracteristicas(OtraPersona, OtrasCaracteristicas),
-    not(member(Caracteristica, OtrasCaracteristicas)).
+    not(member(Caracteristica, OtrasCaracteristicas)).*/
 
 
 
